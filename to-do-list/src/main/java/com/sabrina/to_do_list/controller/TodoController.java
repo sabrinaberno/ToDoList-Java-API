@@ -2,6 +2,9 @@ package com.sabrina.to_do_list.controller;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,34 +18,34 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sabrina.to_do_list.entity.Todo;
 import com.sabrina.to_do_list.service.TodoService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/todos")
 public class TodoController {
 
-    private TodoService todoServicie;
-    
-    public TodoController(TodoService todoServicie) {
-        this.todoServicie = todoServicie;
-    }
+    @Autowired
+    private TodoService todoService;
 
     @PostMapping
-    List<Todo> create(@RequestBody Todo todo){
-        return todoServicie.create(todo);
+    ResponseEntity<List<Todo>> create(@Valid @RequestBody Todo todo) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+        .body(todoService.create(todo));
     }
 
     @GetMapping
-    List<Todo> list(){
-        return todoServicie.list();
+        List<Todo> list() {
+        return todoService.list();
     }
 
-    @PutMapping
-    List<Todo> update(@RequestBody Todo todo){
-        return todoServicie.update(todo);
+    @PutMapping("{id}")
+        List<Todo> update(@PathVariable Long id, @RequestBody Todo todo) {
+        return todoService.update(id, todo);
     }
 
-    //revisar -- por que isso acontece no deleete e não acontece também no update?
-    @DeleteMapping("{id}") //entre {} para dizer que esse valor será recuperado da requisição
-    List<Todo> delete(@PathVariable("id") Long id){
-        return todoServicie.delete(id);
+    //revisar -- por que isso acontece no delete e não acontece também no update?
+    @DeleteMapping("{id}")
+        List<Todo> delete(@PathVariable Long id) {
+        return todoService.delete(id);
     }
 }
